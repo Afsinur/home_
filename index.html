@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Browse | Home</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="js/app.js" defer></script>
+  </head>
+  <body>
+    <div id="app">
+      <!-- Settings Button -->
+      <nav><button class="settingsButton">Settings</button></nav>
+
+      <!-- Settings Div -->
+      <div class="settingsDiv">
+        <h3 class="topTitle">Settings</h3>
+
+        <form action="/" method="post" class="settingsForm">
+          <h3>Add Sites</h3>
+
+          <div>
+            <label for="siteName">Site Name</label><br />
+            <input type="text" name="siteName" id="siteName" />
+          </div>
+          <div class="siteNameError"></div>
+
+          <div>
+            <label for="siteLink">Site Link</label><br />
+            <input type="text" name="siteLink" id="siteLink" />
+          </div>
+          <div class="siteLinkError"></div>
+
+          <div>
+            <input type="submit" value="Add" />
+          </div>
+        </form>
+
+        <form action="/" method="post" class="addwallpaper">
+          <div>
+            <label for="imageLink">Image Link</label><br />
+            <input type="text" name="imageLink" id="imageLink" />
+          </div>
+          <div class="imageLinkError"></div>
+
+          <div>
+            <input type="submit" value="Add" />
+          </div>
+        </form>
+      </div>
+
+      <!-- Apps Div -->
+      <div class="localApps"></div>
+    </div>
+  </body>
+</html>
