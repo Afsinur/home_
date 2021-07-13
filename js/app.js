@@ -1,8 +1,4 @@
-//system variables
-let settingsDivOpen = false;
-
 //DOM declaration
-const settingsButton = document.querySelector(".settingsButton");
 const settingsDiv = document.querySelector(".settingsDiv");
 const settingsForm = document.querySelector(".settingsForm");
 const wallpaperForm = document.querySelector(".addwallpaper");
@@ -17,20 +13,33 @@ const imageLinkError = document.querySelector(".imageLinkError");
 const localApps = document.querySelector(".localApps");
 
 //functions
-const hideSettingsDiv = (e) => {
-  /*console.log(e.target);
-  console.log(`parent-className: ${e.target.parentNode.className}`);
-  console.log(`className: ${e.target.className}`);*/
+const reload_ = () => {
+  window.location.reload();
 };
 
-const openSettings = () => {
-  if (settingsDivOpen) {
-    settingsDivOpen = false;
-    settingsDiv.style.display = `none`;
-  } else {
-    settingsDivOpen = true;
-    settingsDiv.style.display = `flex`;
-  }
+const hideSettingsDiv = (e) => {
+  let found_ = 0;
+  const keyArray = [
+    "settingsDiv",
+    "settingsForm",
+    "formGroup",
+    "addwallpaper",
+    "settingsButton",
+  ];
+
+  keyArray.forEach((itm, i) => {
+    if (
+      e.target.parentNode.className === `${itm}` ||
+      e.target.className === `${itm}`
+    ) {
+      found_++;
+      settingsDiv.style.display = `flex`;
+    }
+
+    if (found_ === 0 && i + 1 === keyArray.length) {
+      settingsDiv.style.display = `none`;
+    }
+  });
 };
 
 const addSites = (e) => {
@@ -59,7 +68,7 @@ const addSites = (e) => {
     console.log(JSON.stringify(addObject));
     localStorage.setItem(`${addObject.siteName}`, `${addObject.siteLink}`);
 
-    window.location.reload();
+    reload_();
   } else {
     siteNameError.textContent = err.siteName;
     siteLinkError.textContent = err.siteLink;
@@ -89,41 +98,77 @@ const addWallpaper = (e) => {
     console.log(JSON.stringify(addObject));
     localStorage.setItem(`wallBrowse`, `${addObject.wallLink}`);
 
-    window.location.reload();
+    reload_();
   } else {
     imageLinkError.textContent = err.wallLink;
   }
 };
 
-//event listeners setup
-settingsButton.addEventListener("click", openSettings);
-window.addEventListener("click", hideSettingsDiv);
-settingsForm.addEventListener("submit", addSites);
-wallpaperForm.addEventListener("submit", addWallpaper);
+const delete_ = (e) => {
+  let sibling_ = e.target.parentNode.children[1];
+  let trimedParent = sibling_.innerText.trim();
+  sibling_.removeAttribute("href");
+
+  localStorage.setItem(trimedParent, "");
+  reload_();
+};
 
 //console.log all localStorageItem
-let ul_ = document.createElement("ul");
+const loadLinks = new Promise((resolve, reject) => {
+  let ul_ = document.createElement("ul");
 
-for (const key in localStorage) {
-  if (Object.hasOwnProperty.call(localStorage, key)) {
-    const element = localStorage[key];
+  for (const key in localStorage) {
+    if (Object.hasOwnProperty.call(localStorage, key)) {
+      const element = localStorage[key];
 
-    if (element !== "") {
-      if (key === `wallBrowse`) {
-        document.body.style.backgroundImage = `url("${element}")`;
+      if (element !== "") {
+        if (key === `wallBrowse`) {
+          document.body.style.backgroundImage = `url("${element}")`;
+        } else {
+          let li_ = document.createElement("li");
+          let a_ = document.createElement("a");
+          let a_span_ = document.createElement("span");
+
+          a_.href = element;
+          a_.setAttribute("target", "_blank");
+          a_.textContent = key;
+
+          a_span_.textContent = `x`;
+
+          li_.appendChild(a_span_);
+          li_.appendChild(a_);
+
+          ul_.appendChild(li_);
+        }
       } else {
-        let li_ = document.createElement("li");
-        let a_ = document.createElement("a");
-
-        a_.href = element;
-        a_.setAttribute("target", "_blank");
-        a_.textContent = key;
-
-        li_.appendChild(a_);
-        ul_.appendChild(li_);
+        delete localStorage[key];
       }
     }
   }
-}
 
-localApps.appendChild(ul_);
+  localApps.appendChild(ul_);
+  resolve(1);
+});
+
+(async () => {
+  try {
+    const afterLinkLoad = await loadLinks;
+
+    if (afterLinkLoad === 1) {
+      //DOM declaration
+      const localAppsA_span = document.querySelectorAll(
+        ".localApps ul li span"
+      );
+
+      //event listeners setup
+      window.addEventListener("click", hideSettingsDiv);
+      settingsForm.addEventListener("submit", addSites);
+      wallpaperForm.addEventListener("submit", addWallpaper);
+      localAppsA_span.forEach((itm) => {
+        itm.addEventListener("click", delete_);
+      });
+    }
+  } catch (err) {
+    console.log(err);
+  }
+})();
